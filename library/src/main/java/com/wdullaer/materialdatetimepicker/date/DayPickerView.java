@@ -87,8 +87,8 @@ public abstract class DayPickerView extends RecyclerView implements OnDateChange
 
     public DayPickerView(Context context, DatePickerController controller) {
         super(context);
-        init(context);
         setController(controller);
+        init(context);
     }
 
     public void setController(DatePickerController controller) {
@@ -96,12 +96,16 @@ public abstract class DayPickerView extends RecyclerView implements OnDateChange
         mController.registerOnDateChangedListener(this);
         mSelectedDay = new MonthAdapter.CalendarDay(mController.getTimeZone());
         mTempDay = new MonthAdapter.CalendarDay(mController.getTimeZone());
+        YEAR_FORMAT = new SimpleDateFormat("yyyy", controller.getLocale());
         refreshAdapter();
         onDateChanged();
     }
 
     public void init(Context context) {
-        linearLayoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
+        int scrollOrientation = mController.getScrollOrientation() == DatePickerDialog.ScrollOrientation.VERTICAL
+                ? LinearLayoutManager.VERTICAL
+                : LinearLayoutManager.HORIZONTAL;
+        linearLayoutManager = new LinearLayoutManager(context, scrollOrientation, false);
         setLayoutManager(linearLayoutManager);
         mHandler = new Handler();
         setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
@@ -123,7 +127,10 @@ public abstract class DayPickerView extends RecyclerView implements OnDateChange
     protected void setUpRecyclerView() {
         setVerticalScrollBarEnabled(false);
         setFadingEdgeLength(0);
-        GravitySnapHelper helper = new GravitySnapHelper(Gravity.TOP);
+        int gravity = mController.getScrollOrientation() == DatePickerDialog.ScrollOrientation.VERTICAL
+                ? Gravity.TOP
+                : Gravity.START;
+        GravitySnapHelper helper = new GravitySnapHelper(gravity);
         helper.attachToRecyclerView(this);
     }
 
@@ -334,12 +341,12 @@ public abstract class DayPickerView extends RecyclerView implements OnDateChange
         event.setItemCount(-1);
     }
 
-    private static String getMonthAndYearString(MonthAdapter.CalendarDay day) {
+    private static String getMonthAndYearString(MonthAdapter.CalendarDay day, Locale locale) {
         Calendar cal = Calendar.getInstance();
         cal.set(day.year, day.month, day.day);
 
         String sbuf = "";
-        sbuf += cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+        sbuf += cal.getDisplayName(Calendar.MONTH, Calendar.LONG, locale);
         sbuf += " ";
         sbuf += YEAR_FORMAT.format(cal.getTime());
         return sbuf;
@@ -377,7 +384,7 @@ public abstract class DayPickerView extends RecyclerView implements OnDateChange
         int minMonth = mController.getStartDate().get(Calendar.MONTH);
         int month = (firstVisiblePosition + minMonth) % MonthAdapter.MONTHS_IN_YEAR;
         int year = (firstVisiblePosition + minMonth) / MonthAdapter.MONTHS_IN_YEAR + mController.getMinYear();
-        MonthAdapter.CalendarDay day = new MonthAdapter.CalendarDay(year, month, 1);
+        MonthAdapter.CalendarDay day = new MonthAdapter.CalendarDay(year, month, 1, mController.getTimeZone());
 
         // Scroll either forward or backward one month.
         if (action == AccessibilityNodeInfo.ACTION_SCROLL_FORWARD) {
@@ -402,7 +409,7 @@ public abstract class DayPickerView extends RecyclerView implements OnDateChange
         }
 
         // Go to that month.
-        Utils.tryAccessibilityAnnounce(this, getMonthAndYearString(day));
+        Utils.tryAccessibilityAnnounce(this, getMonthAndYearString(day, mController.getLocale()));
         goTo(day, true, false, true);
         return true;
     }

@@ -13,6 +13,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
+import com.wdullaer.materialdatetimepicker.time.Timepoint;
 
 import java.util.Calendar;
 
@@ -30,7 +31,9 @@ public class TimePickerFragment extends Fragment implements TimePickerDialog.OnT
     private CheckBox titleTime;
     private CheckBox enableSeconds;
     private CheckBox limitSelectableTimes;
+    private CheckBox disableSpecificTimes;
     private CheckBox showVersion2;
+    private TimePickerDialog tpd;
 
     public TimePickerFragment() {
         // Required empty public constructor
@@ -42,29 +45,45 @@ public class TimePickerFragment extends Fragment implements TimePickerDialog.OnT
         View view = inflater.inflate(R.layout.timepicker_layout, container, false);
 
         // Find our View instances
-        timeTextView = (TextView) view.findViewById(R.id.time_textview);
-        Button timeButton = (Button) view.findViewById(R.id.time_button);
-        mode24Hours = (CheckBox) view.findViewById(R.id.mode_24_hours);
-        modeDarkTime = (CheckBox) view.findViewById(R.id.mode_dark_time);
-        modeCustomAccentTime = (CheckBox) view.findViewById(R.id.mode_custom_accent_time);
-        vibrateTime = (CheckBox) view.findViewById(R.id.vibrate_time);
-        dismissTime = (CheckBox) view.findViewById(R.id.dismiss_time);
-        titleTime = (CheckBox) view.findViewById(R.id.title_time);
-        enableSeconds = (CheckBox) view.findViewById(R.id.enable_seconds);
-        limitSelectableTimes = (CheckBox) view.findViewById(R.id.limit_times);
-        showVersion2 = (CheckBox) view.findViewById(R.id.show_version_2);
+        timeTextView = view.findViewById(R.id.time_textview);
+        Button timeButton = view.findViewById(R.id.time_button);
+        mode24Hours = view.findViewById(R.id.mode_24_hours);
+        modeDarkTime = view.findViewById(R.id.mode_dark_time);
+        modeCustomAccentTime = view.findViewById(R.id.mode_custom_accent_time);
+        vibrateTime = view.findViewById(R.id.vibrate_time);
+        dismissTime = view.findViewById(R.id.dismiss_time);
+        titleTime = view.findViewById(R.id.title_time);
+        enableSeconds = view.findViewById(R.id.enable_seconds);
+        limitSelectableTimes = view.findViewById(R.id.limit_times);
+        disableSpecificTimes = view.findViewById(R.id.disable_times);
+        showVersion2 = view.findViewById(R.id.show_version_2);
 
         // Show a timepicker when the timeButton is clicked
         timeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Calendar now = Calendar.getInstance();
-                TimePickerDialog tpd = TimePickerDialog.newInstance(
-                        TimePickerFragment.this,
-                        now.get(Calendar.HOUR_OF_DAY),
-                        now.get(Calendar.MINUTE),
-                        mode24Hours.isChecked()
-                );
+                /*
+                It is recommended to always create a new instance whenever you need to show a Dialog.
+                The sample app is reusing them because it is useful when looking for regressions
+                during testing
+                 */
+                if (tpd == null) {
+                    tpd = TimePickerDialog.newInstance(
+                            TimePickerFragment.this,
+                            now.get(Calendar.HOUR_OF_DAY),
+                            now.get(Calendar.MINUTE),
+                            mode24Hours.isChecked()
+                    );
+                } else {
+                    tpd.initialize(
+                            TimePickerFragment.this,
+                            now.get(Calendar.HOUR_OF_DAY),
+                            now.get(Calendar.MINUTE),
+                            now.get(Calendar.SECOND),
+                            mode24Hours.isChecked()
+                    );
+                }
                 tpd.setThemeDark(modeDarkTime.isChecked());
                 tpd.vibrate(vibrateTime.isChecked());
                 tpd.dismissOnPause(dismissTime.isChecked());
@@ -77,7 +96,20 @@ public class TimePickerFragment extends Fragment implements TimePickerDialog.OnT
                     tpd.setTitle("TimePicker Title");
                 }
                 if (limitSelectableTimes.isChecked()) {
-                    tpd.setTimeInterval(3, 5, 10);
+                    if (enableSeconds.isChecked()) {
+                        tpd.setTimeInterval(3, 5, 10);
+                    } else {
+                        tpd.setTimeInterval(3, 5, 60);
+                    }
+                }
+                if (disableSpecificTimes.isChecked()) {
+                    Timepoint[] disabledTimes = {
+                            new Timepoint(10),
+                            new Timepoint(10, 30),
+                            new Timepoint(11),
+                            new Timepoint(12, 30)
+                    };
+                    tpd.setDisabledTimes(disabledTimes);
                 }
                 tpd.setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
