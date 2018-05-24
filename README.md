@@ -29,9 +29,9 @@ Date Picker | Time Picker
 ## Table of Contents
 1. [Setup](#setup)
 2. [Using Material Date/Time Pickers](#using-material-datetime-pickers)
-  1. [Implement Listeners](#implement-an-ontimesetlistenerondatesetlistener)
-  2. [Create Pickers](#create-a-timepickerdialogdatepickerdialog-using-the-supplied-factory)
-  3. [Theme the Pickers](#theme-the-pickers)
+1. [Implement Listeners](#implement-an-ontimesetlistenerondatesetlistener)
+2. [Create Pickers](#create-a-timepickerdialogdatepickerdialog-using-the-supplied-factory)
+3. [Theme the Pickers](#theme-the-pickers)
 3. [Additional Options](#additional-options)
 4. [FAQ](#faq)
 5. [Potential Improvements](#potential-improvements)
@@ -39,10 +39,10 @@ Date Picker | Time Picker
 
 
 ## Setup
-The easiest way to add the Material DateTime Picker library to your project is by adding it as a dependency to your `build.gradle`
+ The easiest way to add the Material DateTime Picker library to your project is by adding it as a dependency to your `build.gradle`
 ```groovy
 dependencies {
-  compile 'com.wdullaer:materialdatetimepicker:3.5.0'
+    compile 'com.wdullaer:materialdatetimepicker:3.6.0'
 }
 ```
 
@@ -200,7 +200,7 @@ Allows the client to set a custom locale that will be used when generating vario
 If set to `true` will dismiss the picker when the user selects a date. This defaults to `false`.
 
 * `TimepickerDialog` `enableSeconds(boolean enableSconds)` and `enableMinutes(boolean enableMinutes)`
-Allows you to enable or disable a seconds and minutes picker ont he `TimepickerDialog`. Enabling the seconds picker, implies enabling the minutes picker. Disabling the minute picker will disable the seconds picker. The last applied setting will be used. By default `enableSeconds = false` and `enableMinutes = true`.
+Allows you to enable or disable a seconds and minutes picker on the `TimepickerDialog`. Enabling the seconds picker, implies enabling the minutes picker. Disabling the minute picker will disable the seconds picker. The last applied setting will be used. By default `enableSeconds = false` and `enableMinutes = true`.
 
 * `DatePickerDialog` `setTimeZone(Timezone timezone)` *deprecated*  
 Sets the `Timezone` used to represent time internally in the picker. Defaults to the current default Timezone of the device.
@@ -228,7 +228,7 @@ If you do really need `SupportDialogFragment`, you can fork the library (It invo
 
 ```groovy
 dependencies {
-  compile 'co.infinum:materialdatetimepicker-support:3.5.0'
+  compile 'co.infinum:materialdatetimepicker-support:3.6.0'
 }
 ```
 
@@ -242,7 +242,7 @@ library for MaterialDateTimePicker.
 Using the following snippet in your apps `build.gradle` file you can exclude this library's transitive support library dependency from being installed.
 
 ```groovy
-compile ('com.wdullaer:materialdatetimepicker:3.5.0') {
+compile ('com.wdullaer:materialdatetimepicker:3.6.0') {
         exclude group: 'com.android.support'
 }
 ```
